@@ -55,6 +55,8 @@ SolaisInterpreter::SolaisInterpreter(const rclcpp::NodeOptions & options)
     "/tracker/target", rclcpp::SensorDataQoS(), [this](const auto_aim_interfaces::msg::Target::SharedPtr msg) {
         tx_msg(msg);
     });
+
+    RCLCPP_INFO(node_->get_logger(), "SolaisInterpreter initialized.");
 }
 
 SolaisInterpreter::~SolaisInterpreter()
@@ -84,7 +86,7 @@ void SolaisInterpreter::rx_msg(const geometry_msgs::msg::Vector3::SharedPtr msg)
 {
     cur_pitch_ = msg->y;
     cur_yaw_ = msg->z;
-    RCLCPP_INFO(node_->get_logger(), "Yaw: %f, Pitch; %f", cur_yaw_, cur_pitch_);
+    // RCLCPP_INFO(node_->get_logger(), "Yaw: %f, Pitch; %f", cur_yaw_, cur_pitch_);
 
     geometry_msgs::msg::TransformStamped t;
         timestamp_offset_ = node_->get_parameter("timestamp_offset").as_double();
@@ -99,7 +101,7 @@ void SolaisInterpreter::rx_msg(const geometry_msgs::msg::Vector3::SharedPtr msg)
         m.getRPY(tmp_roll, tmp_pitch, tmp_yaw);
         cur_yaw_cropped_ = tmp_yaw;
         tf_broadcaster_->sendTransform(t);
-    RCLCPP_INFO(node_->get_logger(), "TF2 Yaw: %f", tmp_yaw);
+    // RCLCPP_INFO(node_->get_logger(), "TF2 Yaw: %f", tmp_yaw);
 }
 
 void SolaisInterpreter::tx_msg(const auto_aim_interfaces::msg::Target::SharedPtr msg)
@@ -186,10 +188,10 @@ void SolaisInterpreter::tx_msg(const auto_aim_interfaces::msg::Target::SharedPtr
         aim_msg.yaw = yaw_diff + cur_yaw_ + offset_yaw_;
         aim_pub_->publish(aim_msg);
 
-        RCLCPP_INFO(node_->get_logger(), " Target Yaw: %f, Target Pitch: %f", aim_msg.yaw, aim_msg.pitch);
+        // RCLCPP_INFO(node_->get_logger(), " Target Yaw: %f, Target Pitch: %f", aim_msg.yaw, aim_msg.pitch);
 
-        auto latency = (node_->now() - msg->header.stamp).seconds() * 1000.0;
-        RCLCPP_INFO(node_->get_logger(), "Total latency: %f ms", latency);
+        // auto latency = (node_->now() - msg->header.stamp).seconds() * 1000.0;
+        // RCLCPP_INFO(node_->get_logger(), "Total latency: %f ms", latency);
     }
 }
 
