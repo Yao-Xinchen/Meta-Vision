@@ -1,7 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "solais_interpreter/solais_interpreter.hpp"
 
-#include "solais_interpreter/crc.h"
 #include <functional>
 #include <geometry_msgs/msg/detail/transform_stamped__struct.hpp>
 #include <geometry_msgs/msg/detail/vector3__struct.hpp>
@@ -185,7 +184,7 @@ void SolaisInterpreter::tx_msg(const auto_aim_interfaces::msg::Target::SharedPtr
         vision_interface::msg::AutoAim aim_msg;
         aim_msg.pitch = hit_pitch + offset_pitch_;
         auto yaw_diff = calculateMinAngleDiff(hit_yaw, cur_yaw_cropped_);
-        aim_msg.yaw = yaw_diff + cur_yaw_ + offset_yaw_;
+        aim_msg.yaw = - yaw_diff + cur_yaw_ + offset_yaw_;
         aim_pub_->publish(aim_msg);
 
         // RCLCPP_INFO(node_->get_logger(), " Target Yaw: %f, Target Pitch: %f", aim_msg.yaw, aim_msg.pitch);
