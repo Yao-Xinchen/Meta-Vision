@@ -84,7 +84,7 @@ void SolaisInterpreter::declareParameters()
 
 void SolaisInterpreter::rx_msg(const geometry_msgs::msg::Vector3::SharedPtr msg)
 {
-    cur_pitch_ = msg->y;
+    cur_pitch_ = - msg->y;
     cur_yaw_ = msg->z;
     // RCLCPP_INFO(node_->get_logger(), "Yaw: %f, Pitch; %f", cur_yaw_, cur_pitch_);
 
@@ -157,7 +157,7 @@ void SolaisInterpreter::tx_msg(const auto_aim_interfaces::msg::Target::SharedPtr
         solver_->solve(
             target_predict_position.head(2).norm(), target_predict_position.z(),
             target_pitch);
-        // target_pitch = -target_pitch;  // Right-handed system
+        target_pitch = -target_pitch;  // Right-handed system
         target_yaw = std::atan2(target_predict_position.y(), target_predict_position.x());
 
         // Choose the target with minimum yaw error.
@@ -183,9 +183,10 @@ void SolaisInterpreter::tx_msg(const auto_aim_interfaces::msg::Target::SharedPtr
         // MY_TODO: Publish the target position to the topic
 
         vision_interface::msg::AutoAim aim_msg;
-        aim_msg.pitch = hit_pitch + offset_pitch_;
+        aim_msg.pitch = - (hit_pitch + offset_pitch_);
         auto yaw_diff = calculateMinAngleDiff(hit_yaw, cur_yaw_cropped_);
-        aim_msg.yaw = 2 * M_PI + yaw_diff - cur_yaw_ - offset_yaw_;
+        float imu_yaw = - yaw_diff + cur_yaw_ + offset_yaw_; // clockwise
+        aim_msg.yaw =  2 * M_PI - imu_yaw; // counter-clockwise
         aim_pub_->publish(aim_msg);
 
         // RCLCPP_INFO(node_->get_logger(), " Target Yaw: %f, Target Pitch: %f", aim_msg.yaw, aim_msg.pitch);
